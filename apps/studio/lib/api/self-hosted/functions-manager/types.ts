@@ -4,6 +4,7 @@
  */
 export interface IFunctionsArtifactStore {
   getFunctions(): Promise<FunctionArtifact[]>
+  getFunctionBySlug(slug: string): Promise<FunctionArtifact | undefined>
 }
 
 export type FunctionArtifact = {
@@ -15,10 +16,10 @@ export type FunctionArtifact = {
 
 export type NewFunctionArtifactStore =
   | {
-      store: IFunctionsArtifactStore
-      error: undefined
-    }
+    store: IFunctionsArtifactStore
+    error: undefined
+  }
   | {
-      store: undefined
-      error: string
-    }
+    store: undefined
+    error: string
+  }

@@ -1,11 +1,11 @@
 import path from 'path'
 import type { Dirent } from 'fs'
-import { readdir, stat } from 'fs/promises'
+import { opendir, readdir, stat } from 'fs/promises'
 import { FunctionArtifact, NewFunctionArtifactStore, IFunctionsArtifactStore } from './types'
 import { pathToFileURL } from 'url'
 
 export class FileSystemFunctionsArtifactStore implements IFunctionsArtifactStore {
-  constructor(private folderPath: string) {}
+  constructor(private folderPath: string) { }
 
   static new(): NewFunctionArtifactStore {
     const folder = process.env.EDGE_FUNCTIONS_MANAGEMENT_FOLDER
@@ -28,6 +28,15 @@ export class FileSystemFunctionsArtifactStore implements IFunctionsArtifactStore
     )
 
     return functionsArtifacts.filter((f) => f !== undefined)
+  }
+
+  async getFunctionBySlug(slug: string): Promise<FunctionArtifact | undefined> {
+    const dirEntries = await readdir(this.folderPath, { withFileTypes: true })
+
+    const functionFolder = dirEntries.find((dir) => dir.isDirectory() && dir.name !== 'main' && dir.name === slug);
+    if (!functionFolder) return;
+
+    return parseFolderToFunctionArtifact(functionFolder);
   }
 }
 
