@@ -1,11 +1,16 @@
 import path from 'path'
 import type { Dirent } from 'fs'
-import { opendir, readdir, stat } from 'fs/promises'
-import { FunctionArtifact, NewFunctionArtifactStore, IFunctionsArtifactStore } from './types'
+import { opendir, readdir, readFile, stat } from 'fs/promises'
+import {
+  FunctionArtifact,
+  NewFunctionArtifactStore,
+  IFunctionsArtifactStore,
+  FunctionBlobArtifact,
+} from './types'
 import { pathToFileURL } from 'url'
 
 export class FileSystemFunctionsArtifactStore implements IFunctionsArtifactStore {
-  constructor(private folderPath: string) { }
+  constructor(private folderPath: string) {}
 
   static new(): NewFunctionArtifactStore {
     const folder = process.env.EDGE_FUNCTIONS_MANAGEMENT_FOLDER
@@ -33,10 +38,30 @@ export class FileSystemFunctionsArtifactStore implements IFunctionsArtifactStore
   async getFunctionBySlug(slug: string): Promise<FunctionArtifact | undefined> {
     const dirEntries = await readdir(this.folderPath, { withFileTypes: true })
 
-    const functionFolder = dirEntries.find((dir) => dir.isDirectory() && dir.name !== 'main' && dir.name === slug);
-    if (!functionFolder) return;
+    const functionFolder = dirEntries.find(
+      (dir) => dir.isDirectory() && dir.name !== 'main' && dir.name === slug
+    )
+    if (!functionFolder) return
 
-    return parseFolderToFunctionArtifact(functionFolder);
+    return parseFolderToFunctionArtifact(functionFolder)
+  }
+
+  async getBlobArtifactsBySlug(slug: string): Promise<FunctionBlobArtifact[]> {
+    if (slug === 'main') return []
+
+    const functionFolderPath = path.join(this.folderPath, slug)
+    const functionFolder = await readdir(functionFolderPath, {
+      recursive: true,
+      withFileTypes: true,
+    })
+
+    const blobArtifacts = await Promise.all(
+      functionFolder
+        .filter((i) => i.isFile())
+        .map(async (file) => await parseFileToFunctionBlobArtifact(file, functionFolderPath))
+    )
+
+    return blobArtifacts.filter((f) => f !== undefined)
   }
 }
 
@@ -57,5 +82,22 @@ async function parseFolderToFunctionArtifact(
     entrypoint_path: pathToFileURL(entrypointPath).href,
     created_at: entrypointStat.birthtimeMs,
     updated_at: entrypointStat.mtimeMs,
+  }
+}
+
+async function parseFileToFunctionBlobArtifact(
+  file: Dirent,
+  originalFolderPath: string
+): Promise<FunctionBlobArtifact | undefined> {
+  if (!file.isFile()) return
+
+  const buffer = await readFile(path.join(file.parentPath, file.name))
+  /* @ts-ignore: Buffer<ArrayBufferLike> to ArrayBuffer */
+  const blob = new Blob([buffer], { type: 'text/plain' })
+
+  const virtualRelativeFilepath = file.parentPath.replace(originalFolderPath, 'source')
+  return {
+    data: blob,
+    filename: path.join(virtualRelativeFilepath, file.name),
   }
 }

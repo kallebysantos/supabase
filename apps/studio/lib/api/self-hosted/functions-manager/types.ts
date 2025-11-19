@@ -5,6 +5,7 @@
 export interface IFunctionsArtifactStore {
   getFunctions(): Promise<FunctionArtifact[]>
   getFunctionBySlug(slug: string): Promise<FunctionArtifact | undefined>
+  getBlobArtifactsBySlug(slug: string): Promise<FunctionBlobArtifact[]>
 }
 
 export type FunctionArtifact = {
@@ -14,12 +15,17 @@ export type FunctionArtifact = {
   updated_at: number
 }
 
+export type FunctionBlobArtifact = {
+  filename: string
+  data: Blob
+}
+
 export type NewFunctionArtifactStore =
   | {
-    store: IFunctionsArtifactStore
-    error: undefined
-  }
+      store: IFunctionsArtifactStore
+      error: undefined
+    }
   | {
-    store: undefined
-    error: string
-  }
+      store: undefined
+      error: string
+    }
