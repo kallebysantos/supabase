@@ -4,7 +4,7 @@ import { AlertCircle, CornerDownLeft, Loader2 } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { toast } from 'sonner'
 
-import { useParams } from 'common'
+import { IS_PLATFORM, useParams } from 'common'
 import { DeployEdgeFunctionWarningModal } from 'components/interfaces/EdgeFunctions/DeployEdgeFunctionWarningModal'
 import { EdgeFunctionFile } from 'components/interfaces/EdgeFunctions/EdgeFunction.types'
 import DefaultLayout from 'components/layouts/DefaultLayout'
@@ -227,33 +227,35 @@ const CodePage = () => {
               orgSlug: org?.slug,
             }}
           />
-          <div className="flex items-center bg-background-muted justify-end p-4 border-t bg-surface-100 shrink-0">
-            <ButtonTooltip
-              loading={isDeploying}
-              size="medium"
-              disabled={!canDeployFunction || files.length === 0 || isLoadingFiles}
-              onClick={handleDeployClick}
-              iconRight={
-                isDeploying ? (
-                  <Loader2 className="animate-spin" size={10} strokeWidth={1.5} />
-                ) : (
-                  <div className="flex items-center space-x-1">
-                    <CornerDownLeft size={10} strokeWidth={1.5} />
-                  </div>
-                )
-              }
-              tooltip={{
-                content: {
-                  side: 'top',
-                  text: !canDeployFunction
-                    ? 'You need additional permissions to update edge functions'
-                    : undefined,
-                },
-              }}
-            >
-              Deploy updates
-            </ButtonTooltip>
-          </div>
+          {IS_PLATFORM && (
+            <div className="flex items-center bg-background-muted justify-end p-4 border-t bg-surface-100 shrink-0">
+              <ButtonTooltip
+                loading={isDeploying}
+                size="medium"
+                disabled={!canDeployFunction || files.length === 0 || isLoadingFiles}
+                onClick={handleDeployClick}
+                iconRight={
+                  isDeploying ? (
+                    <Loader2 className="animate-spin" size={10} strokeWidth={1.5} />
+                  ) : (
+                    <div className="flex items-center space-x-1">
+                      <CornerDownLeft size={10} strokeWidth={1.5} />
+                    </div>
+                  )
+                }
+                tooltip={{
+                  content: {
+                    side: 'top',
+                    text: !canDeployFunction
+                      ? 'You need additional permissions to update edge functions'
+                      : undefined,
+                  },
+                }}
+              >
+                Deploy updates
+              </ButtonTooltip>
+            </div>
+          )}
         </>
       )}
 

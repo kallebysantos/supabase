@@ -69,7 +69,7 @@ const PageLayout: NextPageWithLayout = () => {
 
   if (!IS_PLATFORM) {
     router.push(`/project/${projectRef}/functions/${functionSlug}/details`)
-    return <></>;
+    return <></>
   }
 
   const newChartsEnabled = useFlag('newEdgeFunctionOverviewCharts')

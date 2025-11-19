@@ -105,29 +105,31 @@ const EdgeFunctionDetailsLayout = ({
 
   const navigationItems = functionSlug
     ? [
-      ...(IS_PLATFORM ? [
-        {
-          label: 'Overview',
-          href: `/project/${ref}/functions/${functionSlug}`,
-        },
-        {
-          label: 'Invocations',
-          href: `/project/${ref}/functions/${functionSlug}/invocations`,
-        },
-        {
-          label: 'Logs',
-          href: `/project/${ref}/functions/${functionSlug}/logs`,
-        },
+        ...(IS_PLATFORM
+          ? [
+              {
+                label: 'Overview',
+                href: `/project/${ref}/functions/${functionSlug}`,
+              },
+              {
+                label: 'Invocations',
+                href: `/project/${ref}/functions/${functionSlug}/invocations`,
+              },
+              {
+                label: 'Logs',
+                href: `/project/${ref}/functions/${functionSlug}/logs`,
+              },
+            ]
+          : []),
         {
           label: 'Code',
           href: `/project/${ref}/functions/${functionSlug}/code`,
         },
-      ] : []),
-      {
-        label: 'Details',
-        href: `/project/${ref}/functions/${functionSlug}/details`,
-      },
-    ]
+        {
+          label: 'Details',
+          href: `/project/${ref}/functions/${functionSlug}/details`,
+        },
+      ]
     : []
 
   const downloadFunction = async () => {

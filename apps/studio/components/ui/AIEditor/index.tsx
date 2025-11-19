@@ -10,6 +10,7 @@ import { constructHeaders } from 'data/fetchers'
 import { detectOS } from 'lib/helpers'
 import { useSidebarManagerSnapshot } from 'state/sidebar-manager-state'
 import ResizableAIWidget from './ResizableAIWidget'
+import { IS_PLATFORM } from 'common'
 
 interface AIEditorProps {
   id?: string
@@ -414,9 +415,10 @@ export const AIEditor = ({
       ) : (
         <div className="w-full h-full relative">
           {/* [Joshen] Refactor: Use CodeEditor.tsx instead, reduce duplicate declaration of Editor */}
+          {/* [kallebysantos] TODO: temporaly disabled language for self-host, cause Monaco can't download deps  */}
           <Editor
             theme="supabase"
-            language={language}
+            language={IS_PLATFORM ? language : undefined}
             value={currentValue}
             options={defaultOptions}
             onChange={(value: string | undefined) => {
