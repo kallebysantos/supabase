@@ -25,8 +25,10 @@ async function handleGet(req: NextApiRequest, res: NextApiResponse) {
   }
 
   const blobArtifacts = await store.getBlobArtifactsBySlug(slug)
-  const totalSize = blobArtifacts.reduce((sum, item) => sum + item.data.size, 0)
 
+  const form = new FormData()
+
+  const totalSize = blobArtifacts.reduce((sum, item) => sum + item.data.size, 0)
   const metadata = {
     // mock id, should be "<project_id>_<function_id>_<version>"
     deployment_id: uuidv4(),
@@ -34,8 +36,20 @@ async function handleGet(req: NextApiRequest, res: NextApiResponse) {
     compressed_size: totalSize,
     module_count: blobArtifacts.length,
   }
+  form.append('metadata', new Blob([JSON.stringify(metadata)], { type: 'application/json' }), '')
 
-  return res.status(200).json(metadata)
+  blobArtifacts.forEach((item) => {
+    form.append('file', item.data, item.filename)
+  })
+
+  const multipartResponse = new Response(form)
+
+  res.setHeader(
+    'Content-Type',
+    multipartResponse.headers.get('content-type') ?? 'multipart/form-data'
+  )
+
+  return res.status(200).send(await multipartResponse.text())
 }
 
 export default handler

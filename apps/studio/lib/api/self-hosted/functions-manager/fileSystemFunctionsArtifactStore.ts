@@ -95,9 +95,8 @@ async function parseFileToFunctionBlobArtifact(
   /* @ts-ignore: Buffer<ArrayBufferLike> to ArrayBuffer */
   const blob = new Blob([buffer], { type: 'text/plain' })
 
-  const virtualRelativeFilepath = file.parentPath.replace(originalFolderPath, 'source')
   return {
     data: blob,
-    filename: path.join(virtualRelativeFilepath, file.name),
+    filename: path.join(file.parentPath, file.name),
   }
 }
