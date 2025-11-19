@@ -5,7 +5,7 @@ import React, { useEffect, useState, type PropsWithChildren } from 'react'
 import { toast } from 'sonner'
 
 import { BlobReader, BlobWriter, ZipWriter } from '@zip.js/zip.js'
-import { useParams } from 'common'
+import { IS_PLATFORM, useParams } from 'common'
 import { useIsAPIDocsSidePanelEnabled } from 'components/interfaces/App/FeaturePreview/FeaturePreviewContext'
 import { EdgeFunctionTesterSheet } from 'components/interfaces/Functions/EdgeFunctionDetails/EdgeFunctionTesterSheet'
 import { APIDocsButton } from 'components/ui/APIDocsButton'
@@ -105,6 +105,7 @@ const EdgeFunctionDetailsLayout = ({
 
   const navigationItems = functionSlug
     ? [
+      ...(IS_PLATFORM ? [
         {
           label: 'Overview',
           href: `/project/${ref}/functions/${functionSlug}`,
@@ -121,11 +122,12 @@ const EdgeFunctionDetailsLayout = ({
           label: 'Code',
           href: `/project/${ref}/functions/${functionSlug}/code`,
         },
-        {
-          label: 'Details',
-          href: `/project/${ref}/functions/${functionSlug}/details`,
-        },
-      ]
+      ] : []),
+      {
+        label: 'Details',
+        href: `/project/${ref}/functions/${functionSlug}/details`,
+      },
+    ]
     : []
 
   const downloadFunction = async () => {
