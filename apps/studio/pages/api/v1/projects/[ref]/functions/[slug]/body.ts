@@ -1,7 +1,7 @@
 import { NextApiRequest, NextApiResponse } from 'next'
-import { components } from 'api-types'
 import { getFunctionsArtifactStore } from 'lib/api/self-hosted/functions-manager'
 import { uuidv4 } from 'lib/helpers'
+import { parseMultipartStream, parseMultipartRequest } from '@mjackson/multipart-parser'
 
 async function handler(req: NextApiRequest, res: NextApiResponse) {
   const { method } = req
@@ -15,8 +15,6 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
   }
 }
 
-type EdgeFunctionsResponse = components['schemas']['FunctionResponse']
-
 async function handleGet(req: NextApiRequest, res: NextApiResponse) {
   const slugParam = req.query.slug
   const slug = Array.isArray(slugParam) ? slugParam[0] : slugParam
@@ -26,22 +24,18 @@ async function handleGet(req: NextApiRequest, res: NextApiResponse) {
     return res.status(404)
   }
 
-  const functionsArtifact = await store.getFunctionBySlug(slug)
-  if (!functionsArtifact) return res.status(404)
+  const blobArtifacts = await store.getBlobArtifactsBySlug(slug)
+  const totalSize = blobArtifacts.reduce((sum, item) => sum + item.data.size, 0)
 
-  // mix some mock data
-  const functionResponse = {
-    id: uuidv4(),
-    slug: functionsArtifact.slug,
-    version: 1,
-    name: functionsArtifact.slug,
-    status: 'ACTIVE',
-    entrypoint_path: functionsArtifact.entrypoint_path,
-    created_at: functionsArtifact.created_at,
-    updated_at: functionsArtifact.updated_at,
-  } satisfies EdgeFunctionsResponse
+  const metadata = {
+    // mock id, should be "<project_id>_<function_id>_<version>"
+    deployment_id: uuidv4(),
+    original_size: totalSize,
+    compressed_size: totalSize,
+    module_count: blobArtifacts.length,
+  }
 
-  return res.status(200).json(functionResponse)
+  return res.status(200).json(metadata)
 }
 
 export default handler
