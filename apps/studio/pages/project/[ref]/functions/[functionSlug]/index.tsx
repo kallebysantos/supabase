@@ -67,10 +67,11 @@ const PageLayout: NextPageWithLayout = () => {
   const router = useRouter()
   const { ref: projectRef, functionSlug } = useParams()
 
-  if (!IS_PLATFORM) {
-    router.push(`/project/${projectRef}/functions/${functionSlug}/details`)
-    return <></>
-  }
+  useEffect(() => {
+    if (!IS_PLATFORM) {
+      router.push(`/project/${projectRef}/functions/${functionSlug}/details`)
+    }
+  }, [router])
 
   const newChartsEnabled = useFlag('newEdgeFunctionOverviewCharts')
   const [interval, setInterval] = useState<string>('15min')
