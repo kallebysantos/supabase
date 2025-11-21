@@ -418,7 +418,7 @@ export const AIEditor = ({
           {/* [kallebysantos] TODO: temporaly disabled language for self-host, cause Monaco can't download deps  */}
           <Editor
             theme="supabase"
-            language={IS_PLATFORM ? language : undefined}
+            language={language}
             value={currentValue}
             options={defaultOptions}
             onChange={(value: string | undefined) => {
