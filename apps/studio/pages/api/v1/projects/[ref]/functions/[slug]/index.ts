@@ -1,7 +1,12 @@
 import { NextApiRequest, NextApiResponse } from 'next'
-import { components } from 'api-types'
-import { getFunctionsArtifactStore } from 'lib/api/self-hosted/functions-manager'
+
 import { uuidv4 } from 'lib/helpers'
+import apiWrapper from 'lib/api/apiWrapper'
+import { components } from 'api-types'
+import { getFunctionsArtifactStore } from 'lib/api/self-hosted/functions'
+
+export default (req: NextApiRequest, res: NextApiResponse) =>
+  apiWrapper(req, res, handler, { withAuth: true })
 
 async function handler(req: NextApiRequest, res: NextApiResponse) {
   const { method } = req
@@ -17,17 +22,15 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
 
 type EdgeFunctionsResponse = components['schemas']['FunctionResponse']
 
-async function handleGet(req: NextApiRequest, res: NextApiResponse) {
+const handleGet = async (req: NextApiRequest, res: NextApiResponse) => {
   const slugParam = req.query.slug
   const slug = Array.isArray(slugParam) ? slugParam[0] : slugParam
+  if(!slug) return res.status(404).json({ error: { message: `Missing function 'slug' parameter` } })
 
-  const { store, error } = getFunctionsArtifactStore()
-  if (!slug || !store || error) {
-    return res.status(404)
-  }
+  const store = getFunctionsArtifactStore()
 
   const functionsArtifact = await store.getFunctionBySlug(slug)
-  if (!functionsArtifact) return res.status(404)
+  if (!functionsArtifact) return res.status(404).json({ error: { message: `Function not found` } })
 
   // mix some mock data
   const functionResponse = {
@@ -44,4 +47,3 @@ async function handleGet(req: NextApiRequest, res: NextApiResponse) {
   return res.status(200).json(functionResponse)
 }
 
-export default handler
