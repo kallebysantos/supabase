@@ -1,7 +1,13 @@
 import { NextApiRequest, NextApiResponse } from 'next'
-import { getFunctionsArtifactStore } from 'lib/api/self-hosted/functions-manager'
+
 import { uuidv4 } from 'lib/helpers'
+import apiWrapper from 'lib/api/apiWrapper'
+import { components } from 'api-types'
+import { getFunctionsArtifactStore } from 'lib/api/self-hosted/functions'
 import { parseMultipartStream, parseMultipartRequest } from '@mjackson/multipart-parser'
+
+export default (req: NextApiRequest, res: NextApiResponse) =>
+  apiWrapper(req, res, handler, { withAuth: true })
 
 async function handler(req: NextApiRequest, res: NextApiResponse) {
   const { method } = req
@@ -18,11 +24,9 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
 async function handleGet(req: NextApiRequest, res: NextApiResponse) {
   const slugParam = req.query.slug
   const slug = Array.isArray(slugParam) ? slugParam[0] : slugParam
+  if(!slug) return res.status(404).json({ error: { message: `Missing function 'slug' parameter` } })
 
-  const { store, error } = getFunctionsArtifactStore()
-  if (!slug || !store || error) {
-    return res.status(404)
-  }
+  const store = getFunctionsArtifactStore()
 
   const blobArtifacts = await store.getBlobArtifactsBySlug(slug)
 
@@ -52,4 +56,3 @@ async function handleGet(req: NextApiRequest, res: NextApiResponse) {
   return res.status(200).send(await multipartResponse.text())
 }
 
-export default handler
