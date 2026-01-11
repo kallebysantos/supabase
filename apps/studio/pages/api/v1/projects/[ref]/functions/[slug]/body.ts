@@ -2,9 +2,7 @@ import { NextApiRequest, NextApiResponse } from 'next'
 
 import { uuidv4 } from 'lib/helpers'
 import apiWrapper from 'lib/api/apiWrapper'
-import { components } from 'api-types'
 import { getFunctionsArtifactStore } from 'lib/api/self-hosted/functions'
-import { parseMultipartStream, parseMultipartRequest } from '@mjackson/multipart-parser'
 
 export default (req: NextApiRequest, res: NextApiResponse) =>
   apiWrapper(req, res, handler, { withAuth: true })
