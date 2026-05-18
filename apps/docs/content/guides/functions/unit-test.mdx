@@ -139,20 +139,7 @@ To locally test and debug Edge Functions, you can utilize the Supabase CLI. Let'
 
    This command starts a local server that runs your Edge Functions, enabling you to test and debug them in a development environment.
 
-3. Create the environment variables file:
-
-   ```bash
-   # creates the file
-   touch .env
-   # adds the SUPABASE_URL secret
-   echo "SUPABASE_URL=http://localhost:54321" >> .env
-   # adds the SUPABASE_PUBLISHABLE_KEY secret
-   echo "SUPABASE_PUBLISHABLE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0" >> .env
-   # Alternatively, you can open it in your editor:
-   open .env
-   ```
-
-4. To run the tests, use the following command in your terminal:
+3. To run the tests, use the following command in your terminal:
 
    ```bash
    deno test --allow-all supabase/functions/tests/function-one-test.ts
