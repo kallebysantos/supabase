@@ -12,6 +12,10 @@ type EdgeFunctionBodyVariables = {
   slug?: string
 }
 
+export function isFunctionBodyMaxSizeError(error: ResponseError) {
+  return error.code === 507
+}
+
 export async function getEdgeFunctionBody(
   { projectRef, slug }: EdgeFunctionBodyVariables,
   signal?: AbortSignal

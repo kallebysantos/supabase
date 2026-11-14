@@ -15,7 +15,10 @@ import { ButtonTooltip } from '@/components/ui/ButtonTooltip'
 import { FileExplorerAndEditor } from '@/components/ui/FileExplorerAndEditor'
 import { FileData } from '@/components/ui/FileExplorerAndEditor/FileExplorerAndEditor.types'
 import { InlineLink } from '@/components/ui/InlineLink'
-import { useEdgeFunctionBodyQuery } from '@/data/edge-functions/edge-function-body-query'
+import {
+  isFunctionBodyMaxSizeError,
+  useEdgeFunctionBodyQuery,
+} from '@/data/edge-functions/edge-function-body-query'
 import { useEdgeFunctionQuery } from '@/data/edge-functions/edge-function-query'
 import { useEdgeFunctionDeployMutation } from '@/data/edge-functions/edge-functions-deploy-mutation'
 import { useAsyncCheckPermissions } from '@/hooks/misc/useCheckPermissions'
@@ -168,18 +171,32 @@ const CodePage = () => {
               <p className="font-medium mb-2">To resolve this issue:</p>
               <ol className="text-left space-y-1">
                 <li>1. Update to the latest Supabase CLI version</li>
-                <li>
-                  2. Redeploy your function using:{' '}
-                  <code className="text-xs bg-muted px-1 py-0.5 rounded">
-                    supabase functions deploy
-                  </code>
-                </li>
-                <li>
-                  3. Or use the{' '}
-                  <InlineLink href={`${DOCS_URL}/reference/api/v1-deploy-a-function`}>
-                    Management API
-                  </InlineLink>
-                </li>
+                {isFunctionBodyMaxSizeError(filesError) ? (
+                  <>
+                    <li>
+                      2. Donwload your function using:{' '}
+                      <code className="text-xs bg-muted px-1 py-0.5 rounded">
+                        supabase functions download {functionSlug}
+                      </code>
+                    </li>
+                  </>
+                ) : (
+                  <>
+                    <li>
+                      2. Redeploy your function using:{' '}
+                      <code className="text-xs bg-muted px-1 py-0.5 rounded">
+                        supabase functions deploy
+                      </code>
+                    </li>
+
+                    <li>
+                      3. Or use the{' '}
+                      <InlineLink href={`${DOCS_URL}/reference/api/v1-deploy-a-function`}>
+                        Management API
+                      </InlineLink>
+                    </li>
+                  </>
+                )}
               </ol>
             </div>
           </div>
